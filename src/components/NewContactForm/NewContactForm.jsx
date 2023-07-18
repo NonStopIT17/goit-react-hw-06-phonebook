@@ -10,6 +10,7 @@ function NewContactForm({ addContact }) {
     event.preventDefault();
 
     const contact = {
+      id: Date.now().toString(),
       name: name,
       number: number,
     };

@@ -56,7 +56,7 @@ function App() {
       <ContactForm addContact={handleAddContact} />
 
       <ContactTitle>Contacts</ContactTitle>
-      <TotalContactText>Total contacts: {contacts.length}</TotalContactText>
+      <TotalContactText>Total contacts: {filteredContacts.length}</TotalContactText>
       <Filter setFilter={handleFilterChange} />
       <ContactList
         contacts={filteredContacts}
