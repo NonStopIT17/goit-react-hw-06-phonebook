@@ -1,22 +1,19 @@
-import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { addContact, deleteContact } from "./redux/store";
-import { updateFilter } from "./redux/filterSlice";
+import React, { useState, useEffect } from "react";
 import { ContactList } from "../components/contacts/Contacts";
 import { GlobalStyle } from "./GlobalStyle.styled";
 import NewContactForm from "./NewContactForm/NewContactForm";
+import { v4 as uuidv4 } from "uuid";
 import Filter from "../components/filter/Filter";
 
-const App = () => {
-  const contacts = useSelector((state) => state.contacts);
-  const filter = useSelector((state) => state.filter);
-  const dispatch = useDispatch();
+function App() {
+  const [contacts, setContacts] = useState([]);
+  const [filter, setFilter] = useState("");
 
   useEffect(() => {
     const storedContacts = localStorage.getItem("contacts");
 
     if (storedContacts) {
-      dispatch(addContact(JSON.parse(storedContacts)));
+      setContacts(JSON.parse(storedContacts));
     }
   }, []);
 
@@ -24,7 +21,7 @@ const App = () => {
     localStorage.setItem("contacts", JSON.stringify(contacts));
   }, [contacts]);
 
-  const handleAddContact = (contact) => {
+  const addContact = (contact) => {
     const isContactExists = contacts.some(
       (existingContact) =>
         existingContact.name.toLowerCase() === contact.name.toLowerCase()
@@ -34,21 +31,23 @@ const App = () => {
       alert(`${contact.name} is already in contacts`);
     } else {
       const newContact = {
-        id: nanoid(),
+        id: uuidv4(),
         name: contact.name,
         number: contact.number,
       };
 
-      dispatch(addContact(newContact));
+      setContacts((prevContacts) => [...prevContacts, newContact]);
     }
   };
 
-  const handleDeleteContact = (id) => {
-    dispatch(deleteContact(id));
+  const deleteContact = (id) => {
+    setContacts((prevContacts) =>
+      prevContacts.filter((contact) => contact.id !== id)
+    );
   };
 
   const handleFilterChange = (value) => {
-    dispatch(updateFilter(value));
+    setFilter(value);
   };
 
   const filteredContacts = contacts.filter((contact) =>
@@ -60,19 +59,16 @@ const App = () => {
       <GlobalStyle />
       <div>
         <h1 style={{ marginBottom: "20px" }}>Phonebook</h1>
-        <NewContactForm addContact={handleAddContact} />
+        <NewContactForm addContact={addContact} />
 
         <h2 style={{ marginBottom: "10px" }}>Contacts</h2>
         <Filter setFilter={handleFilterChange} />
 
-        <ContactList
-          contacts={filteredContacts}
-          deleteContact={handleDeleteContact}
-        />
+        <ContactList contacts={filteredContacts} deleteContact={deleteContact} />
       </div>
     </div>
   );
-};
+}
 
 export default App;
 
