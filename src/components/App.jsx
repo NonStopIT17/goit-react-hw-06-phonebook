@@ -1,19 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { addContact, deleteContact } from "./redux/store";
+import { updateFilter } from "./redux/filterSlice";
 import { ContactList } from "../components/contacts/Contacts";
 import { GlobalStyle } from "./GlobalStyle.styled";
 import NewContactForm from "./NewContactForm/NewContactForm";
-import { v4 as uuidv4 } from "uuid";
 import Filter from "../components/filter/Filter";
 
-function App() {
-  const [contacts, setContacts] = useState([]);
-  const [filter, setFilter] = useState("");
+const App = () => {
+  const contacts = useSelector((state) => state.contacts);
+  const filter = useSelector((state) => state.filter);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const storedContacts = localStorage.getItem("contacts");
 
     if (storedContacts) {
-      setContacts(JSON.parse(storedContacts));
+      dispatch(addContact(JSON.parse(storedContacts)));
     }
   }, []);
 
@@ -21,7 +24,7 @@ function App() {
     localStorage.setItem("contacts", JSON.stringify(contacts));
   }, [contacts]);
 
-  const addContact = (contact) => {
+  const handleAddContact = (contact) => {
     const isContactExists = contacts.some(
       (existingContact) =>
         existingContact.name.toLowerCase() === contact.name.toLowerCase()
@@ -31,23 +34,21 @@ function App() {
       alert(`${contact.name} is already in contacts`);
     } else {
       const newContact = {
-        id: uuidv4(),
+        id: nanoid(),
         name: contact.name,
         number: contact.number,
       };
 
-      setContacts((prevContacts) => [...prevContacts, newContact]);
+      dispatch(addContact(newContact));
     }
   };
 
-  const deleteContact = (id) => {
-    setContacts((prevContacts) =>
-      prevContacts.filter((contact) => contact.id !== id)
-    );
+  const handleDeleteContact = (id) => {
+    dispatch(deleteContact(id));
   };
 
   const handleFilterChange = (value) => {
-    setFilter(value);
+    dispatch(updateFilter(value));
   };
 
   const filteredContacts = contacts.filter((contact) =>
@@ -59,16 +60,19 @@ function App() {
       <GlobalStyle />
       <div>
         <h1 style={{ marginBottom: "20px" }}>Phonebook</h1>
-        <NewContactForm addContact={addContact} />
+        <NewContactForm addContact={handleAddContact} />
 
         <h2 style={{ marginBottom: "10px" }}>Contacts</h2>
         <Filter setFilter={handleFilterChange} />
 
-        <ContactList contacts={filteredContacts} deleteContact={deleteContact} />
+        <ContactList
+          contacts={filteredContacts}
+          deleteContact={handleDeleteContact}
+        />
       </div>
     </div>
   );
-}
+};
 
 export default App;
 
