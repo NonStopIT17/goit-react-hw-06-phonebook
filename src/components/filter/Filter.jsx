@@ -1,14 +1,16 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
+import React from "react";
+import { useDispatch } from "react-redux";
+import { setFilter } from "../../redux/filterSlice";
 import { FilterForm } from "../contacts/Contacts.styled";
 
-function Filter({ setFilter }) {
-  const [filterValue, setFilterValue] = useState("");
+function Filter() {
+  const dispatch = useDispatch();
+  const [filterValue, setFilterValue] = React.useState("");
 
   const handleFilterChange = (event) => {
     const value = event.target.value;
     setFilterValue(value);
-    setFilter(value);
+    dispatch(setFilter(value));
   };
 
   return (
@@ -26,11 +28,9 @@ function Filter({ setFilter }) {
   );
 }
 
-Filter.propTypes = {
-  setFilter: PropTypes.func.isRequired,
-};
-
 export default Filter;
+
+
 
 
 
